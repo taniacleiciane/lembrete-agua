@@ -1,0 +1,13 @@
+# Gerado em build (flutter create roda no GitHub Actions)
+/android/
+/build/
+.dart_tool/
+.flutter-plugins*
+.packages
+pubspec.lock
+*.iml
+.idea/
+.vscode/
+*.apk
+*.jks
+key.properties

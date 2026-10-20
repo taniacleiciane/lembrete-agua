@@ -2,7 +2,16 @@ name: Gerar APK
 
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   workflow_dispatch:
+
+permissions:
+  contents: write   # necessário para publicar o APK em Releases quando houver tag
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -29,11 +38,21 @@ jobs:
       - name: Baixar dependências
         run: flutter pub get
 
+      - name: Análise estática
+        run: flutter analyze lib --no-fatal-infos
+
       - name: Compilar o APK
         run: flutter build apk --release
 
-      - name: Disponibilizar o APK para download
+      - name: Guardar o APK desta execução
         uses: actions/upload-artifact@v4
         with:
           name: lembrete-agua-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Publicar em Releases (somente em tags v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
+          generate_release_notes: true
